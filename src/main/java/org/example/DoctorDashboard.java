@@ -16,15 +16,6 @@ class DoctorDashboard extends JPanel {
         this.system = system;
         setLayout(new BorderLayout());
 
-        // Menu bar
-        JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("File");
-        JMenuItem logoutItem = new JMenuItem("Logout");
-        logoutItem.addActionListener(e -> system.showLoginPanel());
-        fileMenu.add(logoutItem);
-        menuBar.add(fileMenu);
-        add(menuBar, BorderLayout.NORTH);
-
         // Title
         JLabel titleLabel = new JLabel("Doctor Dashboard", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -43,12 +34,15 @@ class DoctorDashboard extends JPanel {
         JPanel buttonPanel = new JPanel();
         JButton completeButton = new JButton("Mark Completed");
         JButton refreshButton = new JButton("Refresh");
-
+        // Styled Logout Button
+        JButton logoutButton = ButtonStyle.createRedButton("Logout");
+        logoutButton.addActionListener(e -> system.showLoginPanel());
         completeButton.addActionListener(e -> markAppointmentCompleted());
         refreshButton.addActionListener(e -> refreshData());
 
         buttonPanel.add(completeButton);
         buttonPanel.add(refreshButton);
+        buttonPanel.add(logoutButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshData();

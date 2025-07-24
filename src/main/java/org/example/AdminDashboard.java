@@ -1,8 +1,10 @@
 package org.example;
 
+import org.example.IDGenerator;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.Map;
 
 // Admin Dashboard
 class AdminDashboard extends JPanel {
@@ -13,15 +15,6 @@ class AdminDashboard extends JPanel {
         this.system = system;
         setLayout(new BorderLayout());
 
-        // Menu bar
-        JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("File");
-        JMenuItem logoutItem = new JMenuItem("Logout");
-        logoutItem.addActionListener(e -> system.showLoginPanel());
-        fileMenu.add(logoutItem);
-        menuBar.add(fileMenu);
-        add(menuBar, BorderLayout.NORTH);
-
         // Title
         JLabel titleLabel = new JLabel("Administrator Dashboard", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -31,6 +24,8 @@ class AdminDashboard extends JPanel {
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Patients", new PatientManagementPanel());
         tabbedPane.addTab("Doctors", new DoctorManagementPanel());
+        tabbedPane.addTab("Billing", new BillingManagementPanel());
+        tabbedPane.addTab("Users", new UserManagementPanel());
         add(tabbedPane, BorderLayout.CENTER);
     }
 
@@ -68,16 +63,21 @@ class AdminDashboard extends JPanel {
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
             JButton refreshButton = new JButton("Refresh");
+            // Styled Logout Button
+            JButton logoutButton = ButtonStyle.createRedButton("Logout");
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             addButton.addActionListener(e -> showPatientDialog(null));
             editButton.addActionListener(e -> editPatient());
             deleteButton.addActionListener(e -> deletePatient());
             refreshButton.addActionListener(e -> refreshData());
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             buttonPanel.add(addButton);
             buttonPanel.add(editButton);
             buttonPanel.add(deleteButton);
             buttonPanel.add(refreshButton);
+            buttonPanel.add(logoutButton);
             add(buttonPanel, BorderLayout.SOUTH);
 
             refreshData();
@@ -113,6 +113,9 @@ class AdminDashboard extends JPanel {
                 genderCombo.setSelectedItem(patient.getGender());
                 phoneField.setText(patient.getPhone());
                 addressField.setText(patient.getAddress());
+                idField.setEditable(false);
+            } else {
+                idField.setText(IDGenerator.generatePatientID());
                 idField.setEditable(false);
             }
 
@@ -219,16 +222,21 @@ class AdminDashboard extends JPanel {
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
             JButton refreshButton = new JButton("Refresh");
+            // Styled Logout Button
+            JButton logoutButton = ButtonStyle.createRedButton("Logout");
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             addButton.addActionListener(e -> showDoctorDialog(null));
             editButton.addActionListener(e -> editDoctor());
             deleteButton.addActionListener(e -> deleteDoctor());
             refreshButton.addActionListener(e -> refreshData());
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             buttonPanel.add(addButton);
             buttonPanel.add(editButton);
             buttonPanel.add(deleteButton);
             buttonPanel.add(refreshButton);
+            buttonPanel.add(logoutButton);
             add(buttonPanel, BorderLayout.SOUTH);
 
             refreshData();
@@ -260,6 +268,9 @@ class AdminDashboard extends JPanel {
                 nameField.setText(doctor.getName());
                 specField.setText(doctor.getSpecialization());
                 availField.setText(doctor.getAvailability());
+                idField.setEditable(false);
+            } else {
+                idField.setText(IDGenerator.generateDoctorID());
                 idField.setEditable(false);
             }
 
@@ -329,6 +340,299 @@ class AdminDashboard extends JPanel {
 
             if (confirm == JOptionPane.YES_OPTION) {
                 system.deleteDoctor(id);
+                refreshData();
+            }
+        }
+    }
+
+    class BillingManagementPanel extends JPanel implements Refreshable {
+        private DefaultTableModel tableModel;
+        private JTable billTable;
+
+        public BillingManagementPanel() {
+            setLayout(new BorderLayout());
+
+            // Table setup
+            String[] columns = {"ID", "Patient", "Amount", "Description", "Status"};
+            tableModel = new DefaultTableModel(columns, 0) {
+                @Override public boolean isCellEditable(int row, int column) { return false; }
+            };
+            billTable = new JTable(tableModel);
+            JScrollPane scrollPane = new JScrollPane(billTable);
+            add(scrollPane, BorderLayout.CENTER);
+
+            // Button panel
+            JPanel buttonPanel = new JPanel();
+            JButton addButton = new JButton("New Bill");
+            JButton payButton = new JButton("Mark Paid");
+            JButton deleteButton = new JButton("Delete");  // Added delete functionality
+            JButton refreshButton = new JButton("Refresh");
+            // Styled Logout Button
+            JButton logoutButton = ButtonStyle.createRedButton("Logout");
+            logoutButton.addActionListener(e -> system.showLoginPanel());
+
+
+            addButton.addActionListener(e -> showBillDialog());
+            payButton.addActionListener(e -> markBillPaid());
+            deleteButton.addActionListener(e -> deleteBill());  // New delete function
+            refreshButton.addActionListener(e -> refreshData());
+            logoutButton.addActionListener(e -> system.showLoginPanel());
+
+            buttonPanel.add(addButton);
+            buttonPanel.add(payButton);
+            buttonPanel.add(deleteButton);  // Add delete button
+            buttonPanel.add(refreshButton);
+            buttonPanel.add(logoutButton);
+            add(buttonPanel, BorderLayout.SOUTH);
+
+            refreshData();
+        }
+
+        @Override
+        public void refreshData() {
+            tableModel.setRowCount(0);
+            for (Bill b : system.getAllBills()) {
+                Patient p = system.getPatientById(b.getPatientId());
+                tableModel.addRow(new Object[]{
+                        b.getBillId(),
+                        p != null ? p.getName() : "Unknown",
+                        String.format("$%.2f", b.getAmount()),
+                        b.getDescription(),
+                        b.isPaid() ? "Paid" : "Pending"
+                });
+            }
+        }
+
+        private void showBillDialog() {
+            JDialog dialog = new JDialog();
+            dialog.setTitle("New Bill");
+            dialog.setModal(true);
+            dialog.setLayout(new GridLayout(0, 2, 10, 10));
+
+            JComboBox<Patient> patientCombo = new JComboBox<>();
+            JTextField amountField = new JTextField();
+            JTextArea descArea = new JTextArea(3, 20);
+
+            // Populate patient combo
+            for (Patient p : system.getAllPatients()) {
+                patientCombo.addItem(p);
+            }
+
+            dialog.add(new JLabel("Patient:"));
+            dialog.add(patientCombo);
+            dialog.add(new JLabel("Amount:"));
+            dialog.add(amountField);
+            dialog.add(new JLabel("Description:"));
+            dialog.add(new JScrollPane(descArea));
+
+            JButton saveButton = new JButton("Save");
+            saveButton.addActionListener(e -> {
+                try {
+                    Patient p = (Patient) patientCombo.getSelectedItem();
+                    double amount = Double.parseDouble(amountField.getText());
+                    String desc = descArea.getText();
+
+                    if (p == null || desc.isEmpty()) {
+                        throw new IllegalArgumentException();
+                    }
+
+                    String id = IDGenerator.generateBillID();
+                    system.addBill(new Bill(id, p.getPatientId(), amount, desc));
+                    refreshData();
+                    dialog.dispose();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Please enter valid amount", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(dialog, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(e -> dialog.dispose());
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(saveButton);
+            buttonPanel.add(cancelButton);
+
+            dialog.add(new JLabel());
+            dialog.add(buttonPanel);
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        }
+
+        private void markBillPaid() {
+            int row = billTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a bill", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String id = (String) tableModel.getValueAt(row, 0);
+            system.markBillPaid(id);
+            refreshData();
+        }
+
+        // New method for deleting bills
+        private void deleteBill() {
+            int row = billTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a bill", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String id = (String) tableModel.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Delete bill " + id + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                system.getAllBills().removeIf(b -> b.getBillId().equals(id));
+                refreshData();
+            }
+        }
+    }
+
+    class UserManagementPanel extends JPanel implements Refreshable {
+        private DefaultTableModel tableModel;
+        private JTable userTable;
+
+        public UserManagementPanel() {
+            setLayout(new BorderLayout());
+
+            // Table setup
+            String[] columns = {"Username", "Role", "Password"};
+            tableModel = new DefaultTableModel(columns, 0) {
+                @Override public boolean isCellEditable(int row, int column) { return false; }
+            };
+            userTable = new JTable(tableModel);
+            add(new JScrollPane(userTable), BorderLayout.CENTER);
+
+            // Button panel
+            JPanel buttonPanel = new JPanel();
+            JButton addButton = new JButton("Add User");
+            JButton deleteButton = new JButton("Delete");
+            JButton resetPassButton = new JButton("Reset Password");
+            JButton refreshButton = new JButton("Refresh");
+            // Styled Logout Button
+            JButton logoutButton = ButtonStyle.createRedButton("Logout");
+            logoutButton.addActionListener(e -> system.showLoginPanel());
+
+            logoutButton.addActionListener(e -> system.showLoginPanel());
+            addButton.addActionListener(e -> showUserDialog(null));
+            deleteButton.addActionListener(e -> deleteUser());
+            resetPassButton.addActionListener(e -> resetPassword());
+            refreshButton.addActionListener(e -> refreshData());
+
+            buttonPanel.add(addButton);
+            buttonPanel.add(deleteButton);
+            buttonPanel.add(resetPassButton);
+            buttonPanel.add(refreshButton);
+            buttonPanel.add(logoutButton);
+            add(buttonPanel, BorderLayout.SOUTH);
+
+            refreshData();
+        }
+
+        @Override
+        public void refreshData() {
+            tableModel.setRowCount(0);
+            for (Map.Entry<String, User> entry : system.getUsers().entrySet()) {
+                User u = entry.getValue();
+                tableModel.addRow(new Object[]{
+                        u.getUsername(),
+                        u.getRole(),
+                        u.getPassword()
+                });
+            }
+        }
+
+        private void showUserDialog(User user) {
+            JDialog dialog = new JDialog();
+            dialog.setTitle(user == null ? "Add User" : "Edit User");
+            dialog.setModal(true);
+            dialog.setLayout(new GridLayout(0, 2, 10, 10));
+
+            JTextField usernameField = new JTextField();
+            JComboBox<UserRole> roleCombo = new JComboBox<>(UserRole.values());
+            JPasswordField passwordField = new JPasswordField();
+
+            if (user != null) {
+                usernameField.setText(user.getUsername());
+                roleCombo.setSelectedItem(user.getRole());
+                usernameField.setEditable(false); // Username shouldn't be changed
+            }
+
+            dialog.add(new JLabel("Username:"));
+            dialog.add(usernameField);
+            dialog.add(new JLabel("Role:"));
+            dialog.add(roleCombo);
+            dialog.add(new JLabel("Password:"));
+            dialog.add(passwordField);
+
+            JButton saveButton = new JButton("Save");
+            saveButton.addActionListener(e -> {
+                try {
+                    String username = usernameField.getText();
+                    String password = new String(passwordField.getPassword());
+                    UserRole role = (UserRole) roleCombo.getSelectedItem();
+
+                    if (username.isEmpty() || password.isEmpty()) {
+                        throw new IllegalArgumentException("All fields required");
+                    }
+
+                    User newUser = new User(username, password, role);
+                    system.getUsers().put(username, newUser);
+                    refreshData();
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.addActionListener(e -> dialog.dispose());
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(saveButton);
+            buttonPanel.add(cancelButton);
+
+            dialog.add(new JLabel());
+            dialog.add(buttonPanel);
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        }
+
+        private void deleteUser() {
+            int row = userTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a user", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String username = (String) tableModel.getValueAt(row, 0);
+            try {
+                system.deleteUser(username);
+                refreshData();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        private void resetPassword() {
+            int row = userTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a user", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String username = (String) tableModel.getValueAt(row, 0);
+            String newPassword = JOptionPane.showInputDialog(this, "Enter new password for " + username);
+
+            if (newPassword != null && !newPassword.isEmpty()) {
+                system.updateUserPassword(username, newPassword);
                 refreshData();
             }
         }
