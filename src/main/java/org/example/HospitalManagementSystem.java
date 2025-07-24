@@ -56,23 +56,20 @@ public class HospitalManagementSystem extends JFrame {
         users.put("doctor1", new User("doctor1", "doc123", UserRole.DOCTOR));
         users.put("reception1", new User("reception1", "recep123", UserRole.RECEPTIONIST));
 
-        // Sample doctors
-        doctors.add(new Doctor("DOC001", "Dr. Smith", "Cardiology", "9AM-5PM"));
-        doctors.add(new Doctor("DOC002", "Dr. Johnson", "Neurology", "10AM-6PM"));
-        doctors.add(new Doctor("DOC003", "Dr. Williams", "Pediatrics", "8AM-4PM"));
+        // Samples
+        doctors.add(new Doctor("DOC1", "Dr. Smith", "Cardiology", "9AM-5PM"));
+        doctors.add(new Doctor("DOC2", "Dr. Johnson", "Neurology", "10AM-6PM"));
+        doctors.add(new Doctor("DOC3", "Dr. Williams", "Pediatrics", "8AM-4PM"));
 
-        // Sample patients
-        patients.add(new Patient("PAT001", "John Doe", 35, "Male", "123 Main St", "555-1234"));
-        patients.add(new Patient("PAT002", "Jane Smith", 28, "Female", "456 Oak Ave", "555-5678"));
-        patients.add(new Patient("PAT003", "Robert Johnson", 45, "Male", "789 Pine Rd", "555-9012"));
+        patients.add(new Patient("PAT1", "John Doe", 35, "Male", "123 Main St", "555-1234"));
+        patients.add(new Patient("PAT2", "Jane Smith", 28, "Female", "456 Oak Ave", "555-5678"));
+        patients.add(new Patient("PAT3", "Robert Johnson", 45, "Male", "789 Pine Rd", "555-9012"));
 
-        // Sample appointments
-        appointments.add(new Appointment("APP001", "PAT001", "DOC001", "2023-06-15", "10:00", "Regular checkup"));
-        appointments.add(new Appointment("APP002", "PAT002", "DOC002", "2023-06-15", "11:30", "Headache consultation"));
+        appointments.add(new Appointment("APP1", "PAT1", "DOC1", "2023-06-15", "10:00", "Regular checkup"));
+        appointments.add(new Appointment("APP2", "PAT2", "DOC2", "2023-06-15", "11:30", "Headache consultation"));
 
-        // Sample bills
-        bills.add(new Bill("BILL001", "PAT001", 150.00, "Consultation fee"));
-        bills.add(new Bill("BILL002", "PAT002", 200.00, "Lab tests"));
+        bills.add(new Bill("BILL1", "PAT1", 150.00, "Consultation fee"));
+        bills.add(new Bill("BILL2", "PAT2", 200.00, "Lab tests"));
     }
 
     private void createPanels() {
@@ -139,6 +136,24 @@ public class HospitalManagementSystem extends JFrame {
                 .ifPresent(b -> b.setPaid(true));
     }
 
+    public Map<String, User> getUsers() {
+        return users;
+    }
+
+    public void deleteUser(String username) {
+        if (users.size() <= 1) {
+            throw new IllegalStateException("Cannot delete last user");
+        }
+        users.remove(username);
+    }
+
+    public void updateUserPassword(String username, String newPassword) {
+        User user = users.get(username);
+        if (user != null) {
+            users.put(username, new User(username, newPassword, user.getRole()));
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new HospitalManagementSystem().setVisible(true);
@@ -157,7 +172,6 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
-    // Custom styled text field
     class StyledTextField extends JTextField {
         public StyledTextField(int columns) {
             super(columns);
@@ -169,7 +183,6 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
-    // Custom styled combo box
     class StyledComboBox<T> extends JComboBox<T> {
         public StyledComboBox() {
             setBorder(BorderFactory.createCompoundBorder(
@@ -190,7 +203,6 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
-    // Custom styled table
     class StyledTable extends JTable {
         public StyledTable(DefaultTableModel model) {
             super(model);
