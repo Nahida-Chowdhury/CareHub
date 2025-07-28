@@ -2,9 +2,6 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
@@ -19,9 +16,6 @@ public class HospitalManagementSystem extends JFrame {
     // Colors
     private final Color PRIMARY_COLOR = new Color(0, 123, 255);
     private final Color SECONDARY_COLOR = new Color(108, 117, 125);
-    private final Color SUCCESS_COLOR = new Color(40, 167, 69);
-    private final Color DANGER_COLOR = new Color(220, 53, 69);
-    private final Color LIGHT_BG = new Color(248, 249, 250);
     private final Color DARK_BG = new Color(33, 37, 41);
 
     // GUI Components
@@ -51,12 +45,12 @@ public class HospitalManagementSystem extends JFrame {
     }
 
     private void initializeDatabase() {
-        // Sample users
+        // Keep only admin user
         users.put("admin", new User("admin", "admin123", UserRole.ADMIN));
         users.put("doctor1", new User("doctor1", "doc123", UserRole.DOCTOR));
         users.put("reception1", new User("reception1", "recep123", UserRole.RECEPTIONIST));
 
-        // Samples
+        // Rest of your sample data remains the same
         doctors.add(new Doctor("DOC1", "Dr. Smith", "Cardiology", "9AM-5PM"));
         doctors.add(new Doctor("DOC2", "Dr. Johnson", "Neurology", "10AM-6PM"));
         doctors.add(new Doctor("DOC3", "Dr. Williams", "Pediatrics", "8AM-4PM"));
@@ -84,8 +78,11 @@ public class HospitalManagementSystem extends JFrame {
         mainPanel.add(receptionistDashboard, "RECEPTIONIST");
     }
 
+
     // Navigation methods
-    public void showLoginPanel() { cardLayout.show(mainPanel, "LOGIN"); }
+    public void showLoginPanel() {
+        loginPanel.clearFields();
+        cardLayout.show(mainPanel, "LOGIN"); }
     public void showAdminDashboard() { adminDashboard.refreshData(); cardLayout.show(mainPanel, "ADMIN"); }
     public void showDoctorDashboard() { doctorDashboard.refreshData(); cardLayout.show(mainPanel, "DOCTOR"); }
     public void showReceptionistDashboard() { receptionistDashboard.refreshData(); cardLayout.show(mainPanel, "RECEPTIONIST"); }
@@ -172,6 +169,7 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
+    // Custom styled text field
     class StyledTextField extends JTextField {
         public StyledTextField(int columns) {
             super(columns);
@@ -183,6 +181,7 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
+    // Custom styled combo box
     class StyledComboBox<T> extends JComboBox<T> {
         public StyledComboBox() {
             setBorder(BorderFactory.createCompoundBorder(
@@ -203,6 +202,7 @@ public class HospitalManagementSystem extends JFrame {
         }
     }
 
+    // Custom styled table
     class StyledTable extends JTable {
         public StyledTable(DefaultTableModel model) {
             super(model);
@@ -218,4 +218,9 @@ public class HospitalManagementSystem extends JFrame {
             setFillsViewportHeight(true);
         }
     }
+
+    public LoginPanel getLoginPanel() {
+        return loginPanel;
+    }
+
 }

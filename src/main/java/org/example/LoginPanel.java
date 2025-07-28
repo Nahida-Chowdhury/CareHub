@@ -2,8 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 class LoginPanel extends JPanel {
     private HospitalManagementSystem system;
@@ -58,5 +57,10 @@ class LoginPanel extends JPanel {
         loginForm.add(loginButton, gbc);
 
         add(loginForm);
+    }
+
+    public void clearFields() {
+        usernameField.setText("");
+        passwordField.setText("");
     }
 }
