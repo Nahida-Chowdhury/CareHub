@@ -2,9 +2,6 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
@@ -19,9 +16,6 @@ public class HospitalManagementSystem extends JFrame {
     // Colors
     private final Color PRIMARY_COLOR = new Color(0, 123, 255);
     private final Color SECONDARY_COLOR = new Color(108, 117, 125);
-    private final Color SUCCESS_COLOR = new Color(40, 167, 69);
-    private final Color DANGER_COLOR = new Color(220, 53, 69);
-    private final Color LIGHT_BG = new Color(248, 249, 250);
     private final Color DARK_BG = new Color(33, 37, 41);
 
     // GUI Components
