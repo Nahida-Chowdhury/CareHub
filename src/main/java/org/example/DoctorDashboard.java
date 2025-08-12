@@ -78,7 +78,8 @@ class DoctorDashboard extends JPanel {
     private JPanel createMedicalRecordsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        String[] columns = {"Record ID", "Patient", "Date", "Diagnosis", "Treatment"};
+        // Medical Records table
+        String[] columns = {"Record ID", "Patient ID", "Patient", "Date", "Diagnosis", "Treatment"};
         medicalRecordsTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -120,11 +121,13 @@ class DoctorDashboard extends JPanel {
             });
         }
 
+        // Refresh medical records
         medicalRecordsTableModel.setRowCount(0);
         for (Patient patient : system.getAllPatients()) {
             for (MedicalRecord record : patient.getMedicalHistory()) {
                 medicalRecordsTableModel.addRow(new Object[]{
                         record.getRecordId(),
+                        patient.getPatientId(), // Now showing Patient ID
                         patient.getName(),
                         record.getVisitDate(),
                         record.getDiagnosis(),
@@ -270,9 +273,13 @@ class DoctorDashboard extends JPanel {
     }
 
     private void showMedicationDialog() {
-        String patientId = JOptionPane.showInputDialog(this, "Enter Patient ID:");
-        if (patientId == null || patientId.trim().isEmpty()) return;
+        int row = medicalRecordsTable.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a medical record first", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        String patientId = (String) medicalRecordsTableModel.getValueAt(row, 1); // Patient ID is now in column 1
         Patient patient = system.getPatientById(patientId);
         if (patient == null) {
             JOptionPane.showMessageDialog(this, "Patient not found!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -331,9 +338,13 @@ class DoctorDashboard extends JPanel {
     }
 
     private void showAllergyDialog() {
-        String patientId = JOptionPane.showInputDialog(this, "Enter Patient ID:");
-        if (patientId == null || patientId.trim().isEmpty()) return;
+        int row = medicalRecordsTable.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a medical record first", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        String patientId = (String) medicalRecordsTableModel.getValueAt(row, 1); // Patient ID is now in column 1
         Patient patient = system.getPatientById(patientId);
         if (patient == null) {
             JOptionPane.showMessageDialog(this, "Patient not found!", "Error", JOptionPane.ERROR_MESSAGE);
