@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.IDGenerator;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -638,4 +637,3 @@ class AdminDashboard extends JPanel {
         }
     }
 }
-
