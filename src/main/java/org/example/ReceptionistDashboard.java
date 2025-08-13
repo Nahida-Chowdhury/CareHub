@@ -1,9 +1,9 @@
 package org.example;
 
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 class ReceptionistDashboard extends JPanel {
     private HospitalManagementSystem system;
@@ -26,6 +26,7 @@ class ReceptionistDashboard extends JPanel {
     }
 
     public void refreshData() {
+        System.out.println("Receptionist Dashboard - refreshing all data...");
         for (Component comp : tabbedPane.getComponents()) {
             if (comp instanceof Refreshable) {
                 ((Refreshable) comp).refreshData();
@@ -58,13 +59,16 @@ class ReceptionistDashboard extends JPanel {
             JButton addButton = new JButton("New Appointment");
             JButton cancelButton = new JButton("Cancel");
             JButton refreshButton = new JButton("Refresh");
-            // Styled Logout Button
             JButton logoutButton = ButtonStyle.createRedButton("Logout");
-            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             addButton.addActionListener(e -> showAppointmentDialog());
             cancelButton.addActionListener(e -> cancelAppointment());
-            refreshButton.addActionListener(e -> refreshData());
+            refreshButton.addActionListener(e -> {
+                System.out.println("Appointment Refresh button clicked - refreshing appointment data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             buttonPanel.add(addButton);
             buttonPanel.add(cancelButton);
@@ -77,20 +81,42 @@ class ReceptionistDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing appointment table data...");
             tableModel.setRowCount(0);
-            for (Appointment a : system.getAllAppointments()) {
-                Patient p = system.getPatientById(a.getPatientId());
-                Doctor d = system.getDoctorById(a.getDoctorId());
+            List<Appointment> currentAppointments = system.getAllAppointments();
+            System.out.println("Found " + currentAppointments.size() + " appointments");
+
+            for (Appointment a : currentAppointments) {
+                // Use stored names if available, otherwise lookup
+                String patientName = a.getPatientName();
+                String doctorName = a.getDoctorName();
+
+                // Fallback to lookup if names not stored
+                if (patientName == null || patientName.isEmpty()) {
+                    Patient p = system.getPatientById(a.getPatientId());
+                    patientName = p != null ? p.getName() : "Unknown Patient";
+                }
+
+                if (doctorName == null || doctorName.isEmpty()) {
+                    Doctor d = system.getDoctorById(a.getDoctorId());
+                    doctorName = d != null ? d.getName() : "Unknown Doctor";
+                }
+
                 tableModel.addRow(new Object[]{
                         a.getAppointmentId(),
-                        p != null ? p.getName() : "Unknown",
-                        d != null ? d.getName() : "Unknown",
+                        patientName,
+                        doctorName,
                         a.getDate(),
                         a.getTime(),
                         a.getDescription(),
                         a.isCompleted() ? "Completed" : "Pending"
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            appointmentTable.revalidate();
+            appointmentTable.repaint();
+            System.out.println("Appointment table refreshed with " + currentAppointments.size() + " appointments");
         }
 
         private void showAppointmentDialog() {
@@ -117,9 +143,7 @@ class ReceptionistDashboard extends JPanel {
 
             // Initialize comboboxes
             refreshPatientCombo(patientCombo);
-            for (Doctor d : system.getAllDoctors()) {
-                doctorCombo.addItem(d);
-            }
+            refreshDoctorCombo(doctorCombo);
 
             // Add components to dialog
             dialog.add(new JLabel("Patient:"));
@@ -162,30 +186,34 @@ class ReceptionistDashboard extends JPanel {
                 savePatientButton.addActionListener(ev -> {
                     try {
                         // Validate required fields
-                        if (nameField.getText().isEmpty() || ageField.getText().isEmpty() ||
-                                phoneField.getText().isEmpty()) {
-                            throw new IllegalArgumentException("Please fill all required fields");
+                        if (nameField.getText().trim().isEmpty() || ageField.getText().trim().isEmpty() ||
+                                phoneField.getText().trim().isEmpty()) {
+                            throw new IllegalArgumentException("Please fill all required fields (Name, Age, Phone)");
                         }
 
                         // Create new patient
                         String id = IDGenerator.generatePatientID();
                         Patient newPatient = new Patient(
                                 id,
-                                nameField.getText(),
-                                Integer.parseInt(ageField.getText()),
+                                nameField.getText().trim(),
+                                Integer.parseInt(ageField.getText().trim()),
                                 genderCombo.getSelectedItem().toString(),
-                                addressField.getText(),
-                                phoneField.getText()
+                                addressField.getText().trim(),
+                                phoneField.getText().trim()
                         );
 
+                        System.out.println("Creating new patient: " + newPatient.getName());
                         system.addPatient(newPatient);
                         refreshPatientCombo(patientCombo);
                         patientCombo.setSelectedItem(newPatient);
                         patientDialog.dispose();
+                        JOptionPane.showMessageDialog(dialog, "Patient added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(patientDialog, "Please enter a valid age", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(patientDialog, "Please enter a valid age (numbers only)", "Error", JOptionPane.ERROR_MESSAGE);
                     } catch (IllegalArgumentException ex) {
                         JOptionPane.showMessageDialog(patientDialog, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(patientDialog, "Error creating patient: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
 
@@ -211,20 +239,26 @@ class ReceptionistDashboard extends JPanel {
                 try {
                     Patient p = (Patient) patientCombo.getSelectedItem();
                     Doctor d = (Doctor) doctorCombo.getSelectedItem();
-                    String date = dateField.getText();
-                    String time = timeField.getText();
-                    String desc = descArea.getText();
+                    String date = dateField.getText().trim();
+                    String time = timeField.getText().trim();
+                    String desc = descArea.getText().trim();
 
                     // Validate all fields
                     if (p == null || d == null || date.isEmpty() || time.isEmpty() || desc.isEmpty()) {
                         throw new IllegalArgumentException("Please fill all appointment fields");
                     }
 
-                    // Create new appointment
+                    // Create new appointment with patient and doctor names
                     String id = IDGenerator.generateAppointmentID();
-                    system.addAppointment(new Appointment(id, p.getPatientId(), d.getDoctorId(), date, time, desc));
+                    Appointment newAppointment = new Appointment(id, p.getPatientId(), d.getDoctorId(), date, time, desc);
+                    // Set the names for better display
+                    newAppointment.setNames(p.getName(), d.getName());
+
+                    System.out.println("Creating appointment for " + p.getName() + " with " + d.getName());
+                    system.addAppointment(newAppointment);
                     refreshData();
                     dialog.dispose();
+                    JOptionPane.showMessageDialog(this, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -257,20 +291,36 @@ class ReceptionistDashboard extends JPanel {
             }
         }
 
+        // Helper method to refresh doctor combo box
+        private void refreshDoctorCombo(JComboBox<Doctor> combo) {
+            DefaultComboBoxModel<Doctor> model = (DefaultComboBoxModel<Doctor>) combo.getModel();
+            model.removeAllElements();
+            for (Doctor d : system.getAllDoctors()) {
+                model.addElement(d);
+            }
+        }
+
         private void cancelAppointment() {
             int row = appointmentTable.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Please select an appointment", "No Selection", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please select an appointment to cancel", "No Selection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
+            String patientName = (String) tableModel.getValueAt(row, 1);
+            String doctorName = (String) tableModel.getValueAt(row, 2);
+            String date = (String) tableModel.getValueAt(row, 3);
+
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Cancel appointment " + id + "?", "Confirm Cancel", JOptionPane.YES_NO_OPTION);
+                    "Cancel appointment?\n\nPatient: " + patientName + "\nDoctor: " + doctorName + "\nDate: " + date,
+                    "Confirm Cancel", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                System.out.println("Cancelling appointment: " + id);
                 system.getAllAppointments().removeIf(a -> a.getAppointmentId().equals(id));
                 refreshData();
+                JOptionPane.showMessageDialog(this, "Appointment cancelled successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
@@ -296,13 +346,16 @@ class ReceptionistDashboard extends JPanel {
             JButton addButton = new JButton("New Bill");
             JButton payButton = new JButton("Mark Paid");
             JButton refreshButton = new JButton("Refresh");
-            // Styled Logout Button
             JButton logoutButton = ButtonStyle.createRedButton("Logout");
-            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             addButton.addActionListener(e -> showBillDialog());
             payButton.addActionListener(e -> markBillPaid());
-            refreshButton.addActionListener(e -> refreshData());
+            refreshButton.addActionListener(e -> {
+                System.out.println("Billing Refresh button clicked - refreshing billing data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
+            logoutButton.addActionListener(e -> system.showLoginPanel());
 
             buttonPanel.add(addButton);
             buttonPanel.add(payButton);
@@ -316,17 +369,26 @@ class ReceptionistDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing billing table data...");
             tableModel.setRowCount(0);
-            for (Bill b : system.getAllBills()) {
+            List<Bill> currentBills = system.getAllBills();
+            System.out.println("Found " + currentBills.size() + " bills");
+
+            for (Bill b : currentBills) {
                 Patient p = system.getPatientById(b.getPatientId());
                 tableModel.addRow(new Object[]{
                         b.getBillId(),
-                        p != null ? p.getName() : "Unknown",
+                        p != null ? p.getName() : "Unknown Patient",
                         String.format("$%.2f", b.getAmount()),
                         b.getDescription(),
                         b.isPaid() ? "Paid" : "Pending"
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            billTable.revalidate();
+            billTable.repaint();
+            System.out.println("Billing table refreshed with " + currentBills.size() + " bills");
         }
 
         private void showBillDialog() {
@@ -338,6 +400,7 @@ class ReceptionistDashboard extends JPanel {
             JComboBox<Patient> patientCombo = new JComboBox<>();
             JTextField amountField = new JTextField();
             JTextArea descArea = new JTextArea(3, 20);
+            descArea.setLineWrap(true);
 
             // Populate patient combo
             for (Patient p : system.getAllPatients()) {
@@ -346,7 +409,7 @@ class ReceptionistDashboard extends JPanel {
 
             dialog.add(new JLabel("Patient:"));
             dialog.add(patientCombo);
-            dialog.add(new JLabel("Amount:"));
+            dialog.add(new JLabel("Amount ($):"));
             dialog.add(amountField);
             dialog.add(new JLabel("Description:"));
             dialog.add(new JScrollPane(descArea));
@@ -355,21 +418,32 @@ class ReceptionistDashboard extends JPanel {
             saveButton.addActionListener(e -> {
                 try {
                     Patient p = (Patient) patientCombo.getSelectedItem();
-                    double amount = Double.parseDouble(amountField.getText());
-                    String desc = descArea.getText();
+                    String amountText = amountField.getText().trim();
+                    String desc = descArea.getText().trim();
 
-                    if (p == null || desc.isEmpty()) {
-                        throw new IllegalArgumentException();
+                    if (p == null || amountText.isEmpty() || desc.isEmpty()) {
+                        throw new IllegalArgumentException("Please fill all fields");
+                    }
+
+                    double amount = Double.parseDouble(amountText);
+                    if (amount <= 0) {
+                        throw new IllegalArgumentException("Amount must be greater than 0");
                     }
 
                     String id = IDGenerator.generateBillID();
-                    system.addBill(new Bill(id, p.getPatientId(), amount, desc));
+                    Bill newBill = new Bill(id, p.getPatientId(), amount, desc);
+
+                    System.out.println("Creating bill for " + p.getName() + ": $" + amount);
+                    system.addBill(newBill);
                     refreshData();
                     dialog.dispose();
+                    JOptionPane.showMessageDialog(this, "Bill created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Please enter valid amount", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Please enter a valid amount (numbers only)", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(dialog, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog, "Error creating bill: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
 
@@ -391,13 +465,30 @@ class ReceptionistDashboard extends JPanel {
         private void markBillPaid() {
             int row = billTable.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a bill", "No Selection", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please select a bill to mark as paid", "No Selection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
-            system.markBillPaid(id);
-            refreshData();
+            String patientName = (String) tableModel.getValueAt(row, 1);
+            String amount = (String) tableModel.getValueAt(row, 2);
+            String status = (String) tableModel.getValueAt(row, 4);
+
+            if ("Paid".equals(status)) {
+                JOptionPane.showMessageDialog(this, "This bill is already marked as paid", "Already Paid", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Mark bill as paid?\n\nPatient: " + patientName + "\nAmount: " + amount,
+                    "Confirm Payment", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.out.println("Marking bill as paid: " + id);
+                system.markBillPaid(id);
+                refreshData();
+                JOptionPane.showMessageDialog(this, "Bill marked as paid successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
 }
