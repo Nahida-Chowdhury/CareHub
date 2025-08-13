@@ -3,8 +3,6 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 class DoctorDashboard extends JPanel {
     private HospitalManagementSystem system;
@@ -109,6 +107,8 @@ class DoctorDashboard extends JPanel {
         // Refresh appointments
         appointmentTableModel.setRowCount(0);
         for (Appointment a : system.getAllAppointments()) {
+            if (a == null) continue;
+
             Patient p = system.getPatientById(a.getPatientId());
             String patientName = p != null ? p.getName() : "Unknown";
             appointmentTableModel.addRow(new Object[]{
@@ -124,7 +124,11 @@ class DoctorDashboard extends JPanel {
         // Refresh medical records
         medicalRecordsTableModel.setRowCount(0);
         for (Patient patient : system.getAllPatients()) {
+            if (patient == null) continue;
+
             for (MedicalRecord record : patient.getMedicalHistory()) {
+                if (record == null) continue;
+
                 medicalRecordsTableModel.addRow(new Object[]{
                         record.getRecordId(),
                         patient.getPatientId(), // Now showing Patient ID
