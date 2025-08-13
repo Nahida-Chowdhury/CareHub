@@ -45,6 +45,17 @@ public class RestApiServer {
 
     public void start(int port) {
         try {
+            System.out.println("Starting REST API Server...");
+            System.out.println("Testing database connection...");
+
+            boolean dbConnected = DatabaseConnection.getInstance().testConnection();
+            if (!dbConnected) {
+                System.err.println("WARNING: Database connection failed. Server will start but some operations may fail.");
+                System.err.println("Please check your MongoDB Atlas connection and network connectivity.");
+            } else {
+                System.out.println("Database connection successful!");
+            }
+
             server = HttpServer.create(new InetSocketAddress(port), 0);
 
             // Setup endpoints
@@ -58,18 +69,33 @@ public class RestApiServer {
             server.setExecutor(null);
             server.start();
 
-            System.out.println("REST API Server started on port " + port);
-            System.out.println("Available endpoints:");
-            System.out.println("GET  http://localhost:" + port + "/health");
-            System.out.println("GET  http://localhost:" + port + "/api/patients");
-            System.out.println("POST http://localhost:" + port + "/api/patients");
-            System.out.println("GET  http://localhost:" + port + "/api/patients/{id}");
-            System.out.println("PUT  http://localhost:" + port + "/api/patients/{id}");
-            System.out.println("DELETE http://localhost:" + port + "/api/patients/{id}");
-            System.out.println("... (similar endpoints for doctors, appointments, bills, users)");
+            System.out.println("✅ REST API Server started successfully on port " + port);
+            System.out.println("🌐 Server URL: http://localhost:" + port);
+            System.out.println("\n📋 Available endpoints:");
+            System.out.println("  Health Check: GET  http://localhost:" + port + "/health");
+            System.out.println("  Patients:     GET  http://localhost:" + port + "/api/patients");
+            System.out.println("  Patients:     POST http://localhost:" + port + "/api/patients");
+            System.out.println("  Patient by ID: GET http://localhost:" + port + "/api/patients/{id}");
+            System.out.println("  Update Patient: PUT http://localhost:" + port + "/api/patients/{id}");
+            System.out.println("  Delete Patient: DELETE http://localhost:" + port + "/api/patients/{id}");
+            System.out.println("  Doctors:      GET  http://localhost:" + port + "/api/doctors");
+            System.out.println("  Appointments: GET  http://localhost:" + port + "/api/appointments");
+            System.out.println("  Bills:        GET  http://localhost:" + port + "/api/bills");
+            System.out.println("  Users:        GET  http://localhost:" + port + "/api/users");
+            System.out.println("  Login:        POST http://localhost:" + port + "/api/auth/login");
+            System.out.println("\n🔧 Test with: curl http://localhost:" + port + "/health");
 
+        } catch (java.net.BindException e) {
+            System.err.println("❌ ERROR: Port " + port + " is already in use!");
+            System.err.println("   Please check if another application is using port " + port);
+            System.err.println("   Or try starting the server on a different port.");
+            e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("Failed to start server: " + e.getMessage());
+            System.err.println("❌ ERROR: Failed to start server on port " + port);
+            System.err.println("   " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("❌ UNEXPECTED ERROR: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -901,14 +927,36 @@ public class RestApiServer {
     }
 
     public static void main(String[] args) {
+        System.out.println("🏥 Hospital Management System - REST API Server");
+        System.out.println("================================================");
+
+        int port = 8080;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+                System.out.println("Using custom port: " + port);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid port number: " + args[0] + ". Using default port 8080.");
+            }
+        }
+
         RestApiServer server = new RestApiServer();
-        server.start(8080);
+        server.start(port);
 
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\n🛑 Shutting down server...");
             server.stop();
             DatabaseConnection.getInstance().closeConnection();
+            System.out.println("✅ Server shutdown complete.");
         }));
+
+        System.out.println("\n⚡ Server is running. Press Ctrl+C to stop.");
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            System.out.println("Server interrupted.");
+        }
     }
 
     private void handleDeleteAllPatients(HttpExchange exchange) throws IOException {

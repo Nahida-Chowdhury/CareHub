@@ -3,6 +3,7 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
 // Admin Dashboard
@@ -29,11 +30,13 @@ class AdminDashboard extends JPanel {
     }
 
     public void refreshData() {
+        System.out.println("Admin Dashboard - refreshing all panels...");
         for (Component comp : tabbedPane.getComponents()) {
             if (comp instanceof Refreshable) {
                 ((Refreshable) comp).refreshData();
             }
         }
+        System.out.println("Admin Dashboard - all panels refreshed");
     }
 
     interface Refreshable {
@@ -69,8 +72,11 @@ class AdminDashboard extends JPanel {
             addButton.addActionListener(e -> showPatientDialog(null));
             editButton.addActionListener(e -> editPatient());
             deleteButton.addActionListener(e -> deletePatient());
-            refreshButton.addActionListener(e -> refreshData());
-            logoutButton.addActionListener(e -> system.showLoginPanel());
+            refreshButton.addActionListener(e -> {
+                System.out.println("Patient Refresh button clicked - refreshing patient data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
 
             buttonPanel.add(addButton);
             buttonPanel.add(editButton);
@@ -84,12 +90,21 @@ class AdminDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing patient table data...");
             tableModel.setRowCount(0);
-            for (Patient p : system.getAllPatients()) {
+            List<Patient> currentPatients = system.getAllPatients();
+            System.out.println("Found " + currentPatients.size() + " patients");
+
+            for (Patient p : currentPatients) {
                 tableModel.addRow(new Object[]{
                         p.getPatientId(), p.getName(), p.getAge(), p.getGender(), p.getPhone()
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            patientTable.revalidate();
+            patientTable.repaint();
+            System.out.println("Patient table refreshed");
         }
 
         private void showPatientDialog(Patient patient) {
@@ -144,8 +159,10 @@ class AdminDashboard extends JPanel {
                     );
 
                     if (patient == null) {
+                        System.out.println("Adding new patient: " + p.getName());
                         system.addPatient(p);
                     } else {
+                        System.out.println("Updating patient: " + p.getName());
                         system.deletePatient(patient.getPatientId());
                         system.addPatient(p);
                     }
@@ -189,10 +206,12 @@ class AdminDashboard extends JPanel {
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
+            String name = (String) tableModel.getValueAt(row, 1);
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Delete patient " + id + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                    "Delete patient " + name + " (" + id + ")?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                System.out.println("Deleting patient: " + name + " (" + id + ")");
                 system.deletePatient(id);
                 refreshData();
             }
@@ -228,8 +247,11 @@ class AdminDashboard extends JPanel {
             addButton.addActionListener(e -> showDoctorDialog(null));
             editButton.addActionListener(e -> editDoctor());
             deleteButton.addActionListener(e -> deleteDoctor());
-            refreshButton.addActionListener(e -> refreshData());
-            logoutButton.addActionListener(e -> system.showLoginPanel());
+            refreshButton.addActionListener(e -> {
+                System.out.println("Doctor Refresh button clicked - refreshing doctor data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
 
             buttonPanel.add(addButton);
             buttonPanel.add(editButton);
@@ -243,12 +265,21 @@ class AdminDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing doctor table data...");
             tableModel.setRowCount(0);
-            for (Doctor d : system.getAllDoctors()) {
+            List<Doctor> currentDoctors = system.getAllDoctors();
+            System.out.println("Found " + currentDoctors.size() + " doctors");
+
+            for (Doctor d : currentDoctors) {
                 tableModel.addRow(new Object[]{
                         d.getDoctorId(), d.getName(), d.getSpecialization(), d.getAvailability()
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            doctorTable.revalidate();
+            doctorTable.repaint();
+            System.out.println("Doctor table refreshed");
         }
 
         private void showDoctorDialog(Doctor doctor) {
@@ -292,8 +323,10 @@ class AdminDashboard extends JPanel {
                 );
 
                 if (doctor == null) {
+                    System.out.println("Adding new doctor: " + d.getName());
                     system.addDoctor(d);
                 } else {
+                    System.out.println("Updating doctor: " + d.getName());
                     system.deleteDoctor(doctor.getDoctorId());
                     system.addDoctor(d);
                 }
@@ -334,10 +367,12 @@ class AdminDashboard extends JPanel {
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
+            String name = (String) tableModel.getValueAt(row, 1);
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Delete doctor " + id + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                    "Delete doctor " + name + " (" + id + ")?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                System.out.println("Deleting doctor: " + name + " (" + id + ")");
                 system.deleteDoctor(id);
                 refreshData();
             }
@@ -364,22 +399,24 @@ class AdminDashboard extends JPanel {
             JPanel buttonPanel = new JPanel();
             JButton addButton = new JButton("New Bill");
             JButton payButton = new JButton("Mark Paid");
-            JButton deleteButton = new JButton("Delete");  // Added delete functionality
+            JButton deleteButton = new JButton("Delete");
             JButton refreshButton = new JButton("Refresh");
             // Styled Logout Button
             JButton logoutButton = ButtonStyle.createRedButton("Logout");
             logoutButton.addActionListener(e -> system.showLoginPanel());
 
-
             addButton.addActionListener(e -> showBillDialog());
             payButton.addActionListener(e -> markBillPaid());
-            deleteButton.addActionListener(e -> deleteBill());  // New delete function
-            refreshButton.addActionListener(e -> refreshData());
-            logoutButton.addActionListener(e -> system.showLoginPanel());
+            deleteButton.addActionListener(e -> deleteBill());
+            refreshButton.addActionListener(e -> {
+                System.out.println("Billing Refresh button clicked - refreshing billing data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
 
             buttonPanel.add(addButton);
             buttonPanel.add(payButton);
-            buttonPanel.add(deleteButton);  // Add delete button
+            buttonPanel.add(deleteButton);
             buttonPanel.add(refreshButton);
             buttonPanel.add(logoutButton);
             add(buttonPanel, BorderLayout.SOUTH);
@@ -389,8 +426,12 @@ class AdminDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing billing table data...");
             tableModel.setRowCount(0);
-            for (Bill b : system.getAllBills()) {
+            List<Bill> currentBills = system.getAllBills();
+            System.out.println("Found " + currentBills.size() + " bills");
+
+            for (Bill b : currentBills) {
                 Patient p = system.getPatientById(b.getPatientId());
                 tableModel.addRow(new Object[]{
                         b.getBillId(),
@@ -400,6 +441,11 @@ class AdminDashboard extends JPanel {
                         b.isPaid() ? "Paid" : "Pending"
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            billTable.revalidate();
+            billTable.repaint();
+            System.out.println("Billing table refreshed");
         }
 
         private void showBillDialog() {
@@ -436,7 +482,9 @@ class AdminDashboard extends JPanel {
                     }
 
                     String id = IDGenerator.generateBillID();
-                    system.addBill(new Bill(id, p.getPatientId(), amount, desc));
+                    Bill newBill = new Bill(id, p.getPatientId(), amount, desc);
+                    System.out.println("Creating new bill for patient: " + p.getName() + " - Amount: $" + amount);
+                    system.addBill(newBill);
                     refreshData();
                     dialog.dispose();
                 } catch (NumberFormatException ex) {
@@ -469,11 +517,12 @@ class AdminDashboard extends JPanel {
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
+            String patientName = (String) tableModel.getValueAt(row, 1);
+            System.out.println("Marking bill as paid: " + id + " for patient: " + patientName);
             system.markBillPaid(id);
             refreshData();
         }
 
-        // New method for deleting bills
         private void deleteBill() {
             int row = billTable.getSelectedRow();
             if (row == -1) {
@@ -482,10 +531,12 @@ class AdminDashboard extends JPanel {
             }
 
             String id = (String) tableModel.getValueAt(row, 0);
+            String patientName = (String) tableModel.getValueAt(row, 1);
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Delete bill " + id + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                    "Delete bill " + id + " for " + patientName + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
+                System.out.println("Deleting bill: " + id + " for patient: " + patientName);
                 system.getAllBills().removeIf(b -> b.getBillId().equals(id));
                 refreshData();
             }
@@ -517,11 +568,14 @@ class AdminDashboard extends JPanel {
             JButton logoutButton = ButtonStyle.createRedButton("Logout");
             logoutButton.addActionListener(e -> system.showLoginPanel());
 
-            logoutButton.addActionListener(e -> system.showLoginPanel());
             addButton.addActionListener(e -> showUserDialog(null));
             deleteButton.addActionListener(e -> deleteUser());
             resetPassButton.addActionListener(e -> resetPassword());
-            refreshButton.addActionListener(e -> refreshData());
+            refreshButton.addActionListener(e -> {
+                System.out.println("User Refresh button clicked - refreshing user data...");
+                system.refreshAllData(); // Refresh from database first
+                refreshData(); // Then refresh UI
+            });
 
             buttonPanel.add(addButton);
             buttonPanel.add(deleteButton);
@@ -535,8 +589,12 @@ class AdminDashboard extends JPanel {
 
         @Override
         public void refreshData() {
+            System.out.println("Refreshing user table data...");
             tableModel.setRowCount(0);
-            for (Map.Entry<String, User> entry : system.getUsers().entrySet()) {
+            Map<String, User> currentUsers = system.getUsers();
+            System.out.println("Found " + currentUsers.size() + " users");
+
+            for (Map.Entry<String, User> entry : currentUsers.entrySet()) {
                 User u = entry.getValue();
                 tableModel.addRow(new Object[]{
                         u.getUsername(),
@@ -544,6 +602,11 @@ class AdminDashboard extends JPanel {
                         u.getPassword()
                 });
             }
+
+            tableModel.fireTableDataChanged();
+            userTable.revalidate();
+            userTable.repaint();
+            System.out.println("User table refreshed");
         }
 
         private void showUserDialog(User user) {
@@ -581,6 +644,7 @@ class AdminDashboard extends JPanel {
                     }
 
                     User newUser = new User(username, password, role);
+                    System.out.println("Adding/updating user: " + username + " with role: " + role);
                     system.getUsers().put(username, newUser);
                     refreshData();
                     dialog.dispose();
@@ -613,6 +677,7 @@ class AdminDashboard extends JPanel {
 
             String username = (String) tableModel.getValueAt(row, 0);
             try {
+                System.out.println("Deleting user: " + username);
                 system.deleteUser(username);
                 refreshData();
             } catch (Exception ex) {
@@ -631,6 +696,7 @@ class AdminDashboard extends JPanel {
             String newPassword = JOptionPane.showInputDialog(this, "Enter new password for " + username);
 
             if (newPassword != null && !newPassword.isEmpty()) {
+                System.out.println("Resetting password for user: " + username);
                 system.updateUserPassword(username, newPassword);
                 refreshData();
             }

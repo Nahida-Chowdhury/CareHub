@@ -45,7 +45,7 @@ class LoginPanel extends JPanel {
 
         // Setup Enter key functionality
         setupEnterKeyNavigation();
-        
+
         // Set initial focus to username field
         SwingUtilities.invokeLater(() -> usernameField.requestFocusInWindow());
 
@@ -91,7 +91,7 @@ class LoginPanel extends JPanel {
         // Setup input maps for Enter key handling
         InputMap usernameInputMap = usernameField.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap usernameActionMap = usernameField.getActionMap();
-        
+
         usernameInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "moveToPassword");
         usernameActionMap.put("moveToPassword", new AbstractAction() {
             @Override
@@ -102,7 +102,7 @@ class LoginPanel extends JPanel {
 
         InputMap passwordInputMap = passwordField.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap passwordActionMap = passwordField.getActionMap();
-        
+
         passwordInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "performLogin");
         passwordActionMap.put("performLogin", new AbstractAction() {
             @Override
@@ -114,7 +114,7 @@ class LoginPanel extends JPanel {
         // Make login button the default button when it has focus
         InputMap buttonInputMap = loginButton.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap buttonActionMap = loginButton.getActionMap();
-        
+
         buttonInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "performLogin");
         buttonActionMap.put("performLogin", new AbstractAction() {
             @Override
@@ -130,15 +130,11 @@ class LoginPanel extends JPanel {
 
         // Basic validation
         if (username.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter username", 
-                    "Validation Error", JOptionPane.WARNING_MESSAGE);
             usernameField.requestFocusInWindow();
             return;
         }
 
         if (password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter password", 
-                    "Validation Error", JOptionPane.WARNING_MESSAGE);
             passwordField.requestFocusInWindow();
             return;
         }
@@ -154,22 +150,20 @@ class LoginPanel extends JPanel {
                 if (user != null) {
                     // Clear fields on successful login
                     clearFields();
-                    
+
                     // Navigate to appropriate dashboard
                     switch (user.getRole()) {
-                        case ADMIN: 
-                            system.showAdminDashboard(); 
+                        case ADMIN:
+                            system.showAdminDashboard();
                             break;
-                        case DOCTOR: 
-                            system.showDoctorDashboard(); 
+                        case DOCTOR:
+                            system.showDoctorDashboard();
                             break;
-                        case RECEPTIONIST: 
-                            system.showReceptionistDashboard(); 
+                        case RECEPTIONIST:
+                            system.showReceptionistDashboard();
                             break;
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Invalid username or password",
-                            "Login Failed", JOptionPane.ERROR_MESSAGE);
                     // Clear password field and focus on username for retry
                     passwordField.setText("");
                     usernameField.selectAll();

@@ -143,9 +143,11 @@ public class HospitalManagementSystem extends JFrame {
             patients.add(pat2);
             patients.add(pat3);
 
-            // Add sample appointments
+            // Add sample appointments with patient and doctor names
             Appointment app1 = new Appointment("APP1", "PAT1", "DOC1", "2023-06-15", "10:00", "Regular checkup");
+            app1.setNames(pat1, doc1); // Set the names
             Appointment app2 = new Appointment("APP2", "PAT2", "DOC2", "2023-06-15", "11:30", "Headache consultation");
+            app2.setNames(pat2, doc2); // Set the names
 
             appointmentDAO.insertAppointment(app1);
             appointmentDAO.insertAppointment(app2);
@@ -182,8 +184,14 @@ public class HospitalManagementSystem extends JFrame {
         patients.add(new Patient("PAT2", "Jane Smith", 28, "Female", "456 Oak Ave", "555-5678"));
         patients.add(new Patient("PAT3", "Robert Johnson", 45, "Male", "789 Pine Rd", "555-9012"));
 
-        appointments.add(new Appointment("APP1", "PAT1", "DOC1", "2023-06-15", "10:00", "Regular checkup"));
-        appointments.add(new Appointment("APP2", "PAT2", "DOC2", "2023-06-15", "11:30", "Headache consultation"));
+        // Create appointments with names
+        Appointment app1 = new Appointment("APP1", "PAT1", "DOC1", "2023-06-15", "10:00", "Regular checkup");
+        app1.setNames("John Doe", "Dr. Smith");
+        Appointment app2 = new Appointment("APP2", "PAT2", "DOC2", "2023-06-15", "11:30", "Headache consultation");
+        app2.setNames("Jane Smith", "Dr. Johnson");
+
+        appointments.add(app1);
+        appointments.add(app2);
 
         bills.add(new Bill("BILL1", "PAT1", 150.00, "Consultation fee"));
         bills.add(new Bill("BILL2", "PAT2", 200.00, "Lab tests"));
@@ -229,14 +237,49 @@ public class HospitalManagementSystem extends JFrame {
     private void refreshDataFromDatabase() {
         if (patientDAO != null) {
             try {
-                patients = patientDAO.getAllPatients();
-                doctors = doctorDAO.getAllDoctors();
-                appointments = appointmentDAO.getAllAppointments();
-                bills = billDAO.getAllBills();
-                users = userDAO.getAllUsers();
+                System.out.println("Refreshing data from database...");
+
+                // Clear existing data first
+                patients.clear();
+                doctors.clear();
+                appointments.clear();
+                bills.clear();
+                users.clear();
+
+                // Load fresh data from database
+                patients.addAll(patientDAO.getAllPatients());
+                doctors.addAll(doctorDAO.getAllDoctors());
+                appointments.addAll(appointmentDAO.getAllAppointments());
+                bills.addAll(billDAO.getAllBills());
+                users.putAll(userDAO.getAllUsers());
+
+                System.out.println("Data refreshed - Patients: " + patients.size() +
+                        ", Doctors: " + doctors.size() +
+                        ", Appointments: " + appointments.size() +
+                        ", Bills: " + bills.size() +
+                        ", Users: " + users.size());
             } catch (Exception e) {
                 System.err.println("Error refreshing data from database: " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("DAO is null, cannot refresh from database");
+        }
+    }
+
+    // Add a public method to manually refresh data
+    public void refreshAllData() {
+        refreshDataFromDatabase();
+
+        // Refresh all dashboard UIs
+        if (adminDashboard != null) {
+            adminDashboard.refreshData();
+        }
+        if (doctorDashboard != null) {
+            doctorDashboard.refreshData();
+        }
+        if (receptionistDashboard != null) {
+            receptionistDashboard.refreshData();
         }
     }
 
@@ -272,42 +315,73 @@ public class HospitalManagementSystem extends JFrame {
     public void addPatient(Patient patient) {
         patients.add(patient);
         if (patientDAO != null) {
-            patientDAO.insertPatient(patient);
+            boolean success = patientDAO.insertPatient(patient);
+            if (success) {
+                System.out.println("Patient added successfully, refreshing data...");
+                refreshDataFromDatabase(); // Refresh to get latest data
+            }
         }
     }
 
     public void addDoctor(Doctor doctor) {
         doctors.add(doctor);
         if (doctorDAO != null) {
-            doctorDAO.insertDoctor(doctor);
+            boolean success = doctorDAO.insertDoctor(doctor);
+            if (success) {
+                System.out.println("Doctor added successfully, refreshing data...");
+                refreshDataFromDatabase();
+            }
         }
     }
 
     public void addAppointment(Appointment appointment) {
+        // Ensure names are set before adding to database
+        if (appointment.getPatientName() == null || appointment.getDoctorName() == null) {
+            Patient patient = getPatientById(appointment.getPatientId());
+            Doctor doctor = getDoctorById(appointment.getDoctorId());
+            appointment.setNames(patient, doctor);
+        }
+
         appointments.add(appointment);
         if (appointmentDAO != null) {
-            appointmentDAO.insertAppointment(appointment);
+            boolean success = appointmentDAO.insertAppointment(appointment);
+            if (success) {
+                System.out.println("Appointment added successfully, refreshing data...");
+                refreshDataFromDatabase();
+            }
         }
     }
 
     public void addBill(Bill bill) {
         bills.add(bill);
         if (billDAO != null) {
-            billDAO.insertBill(bill);
+            boolean success = billDAO.insertBill(bill);
+            if (success) {
+                System.out.println("Bill added successfully, refreshing data...");
+                refreshDataFromDatabase();
+            }
         }
     }
 
     public void deletePatient(String id) {
         patients.removeIf(p -> p.getPatientId().equals(id));
         if (patientDAO != null) {
-            patientDAO.deletePatient(id);
+            boolean success = patientDAO.deletePatient(id);
+            if (success) {
+                System.out.println("Patient deleted successfully, refreshing data...");
+                refreshDataFromDatabase();
+            }
         }
     }
 
     public void deleteDoctor(String id) {
         doctors.removeIf(d -> d.getDoctorId().equals(id));
         if (doctorDAO != null) {
-            doctorDAO.deleteDoctor(id);
+            boolean success = doctorDAO.deleteDoctor(id);
+            if (success) {
+                System.out.println("Doctor deleted successfully, refreshing data...");
+                refreshDataFromDatabase();
+            }
         }
     }
 

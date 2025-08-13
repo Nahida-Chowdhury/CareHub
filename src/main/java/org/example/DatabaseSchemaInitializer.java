@@ -164,9 +164,15 @@ public class DatabaseSchemaInitializer {
                             .append("patientId", new Document()
                                     .append("bsonType", "string")
                                     .append("pattern", "^PAT[0-9]+$"))
+                            .append("patientName", new Document()
+                                    .append("bsonType", "string")
+                                    .append("description", "Patient name for display purposes"))
                             .append("doctorId", new Document()
                                     .append("bsonType", "string")
                                     .append("pattern", "^DOC[0-9]+$"))
+                            .append("doctorName", new Document()
+                                    .append("bsonType", "string")
+                                    .append("description", "Doctor name for display purposes"))
                             .append("date", new Document()
                                     .append("bsonType", "string")
                                     .append("description", "Date in YYYY-MM-DD format"))
@@ -176,7 +182,8 @@ public class DatabaseSchemaInitializer {
                             .append("description", new Document()
                                     .append("bsonType", "string"))
                             .append("completed", new Document()
-                                    .append("bsonType", "bool"))));
+                                    .append("bsonType", "bool")
+                                    .append("description", "Appointment completion status"))));
 
             database.createCollection("appointments",
                     new com.mongodb.client.model.CreateCollectionOptions()
@@ -344,14 +351,18 @@ public class DatabaseSchemaInitializer {
             List<Document> appointments = Arrays.asList(
                     new Document("appointmentId", "APP1")
                             .append("patientId", "PAT1")
+                            .append("patientName", "John Doe")
                             .append("doctorId", "DOC1")
+                            .append("doctorName", "Dr. Smith")
                             .append("date", "2024-01-15")
                             .append("time", "10:00")
                             .append("description", "Regular checkup")
                             .append("completed", false),
                     new Document("appointmentId", "APP2")
                             .append("patientId", "PAT2")
+                            .append("patientName", "Jane Smith")
                             .append("doctorId", "DOC2")
+                            .append("doctorName", "Dr. Johnson")
                             .append("date", "2024-01-15")
                             .append("time", "11:30")
                             .append("description", "Headache consultation")

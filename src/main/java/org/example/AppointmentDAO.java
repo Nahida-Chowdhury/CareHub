@@ -29,7 +29,9 @@ public class AppointmentDAO {
 
             Document doc = new Document("appointmentId", appointment.getAppointmentId())
                     .append("patientId", appointment.getPatientId())
+                    .append("patientName", appointment.getPatientName()) // Added patient name
                     .append("doctorId", appointment.getDoctorId())
+                    .append("doctorName", appointment.getDoctorName()) // Added doctor name
                     .append("date", appointment.getDate())
                     .append("time", appointment.getTime())
                     .append("description", appointment.getDescription())
@@ -110,7 +112,9 @@ public class AppointmentDAO {
 
             Document updateDoc = new Document("$set", new Document()
                     .append("patientId", appointment.getPatientId())
+                    .append("patientName", appointment.getPatientName()) // Update patient name
                     .append("doctorId", appointment.getDoctorId())
+                    .append("doctorName", appointment.getDoctorName()) // Update doctor name
                     .append("date", appointment.getDate())
                     .append("time", appointment.getTime())
                     .append("description", appointment.getDescription())
@@ -185,7 +189,7 @@ public class AppointmentDAO {
         return getAppointmentById(appointmentId) != null;
     }
 
-    // Helper method
+    // Helper method - Updated to handle patient and doctor names
     private Appointment documentToAppointment(Document doc) {
         Appointment appointment = new Appointment(
                 doc.getString("appointmentId"),
@@ -195,7 +199,21 @@ public class AppointmentDAO {
                 doc.getString("time"),
                 doc.getString("description")
         );
+
+        // Set completion status
         appointment.setCompleted(doc.getBoolean("completed", false));
+
+        // Set patient and doctor names if available
+        String patientName = doc.getString("patientName");
+        String doctorName = doc.getString("doctorName");
+
+        if (patientName != null) {
+            appointment.setPatientName(patientName);
+        }
+        if (doctorName != null) {
+            appointment.setDoctorName(doctorName);
+        }
+
         return appointment;
     }
 }

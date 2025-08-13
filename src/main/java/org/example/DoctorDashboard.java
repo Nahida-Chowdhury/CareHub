@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 class DoctorDashboard extends JPanel {
     private HospitalManagementSystem system;
@@ -64,7 +65,11 @@ class DoctorDashboard extends JPanel {
         JButton addRecordButton = new JButton("Add Medical Record");
 
         completeButton.addActionListener(e -> markAppointmentCompleted());
-        refreshButton.addActionListener(e -> refreshData());
+        refreshButton.addActionListener(e -> {
+            System.out.println("Refresh button clicked - refreshing doctor dashboard data...");
+            system.refreshAllData(); // Refresh from database first
+            refreshData(); // Then refresh UI
+        });
         addRecordButton.addActionListener(e -> showAddMedicalRecordDialog());
 
         buttonPanel.add(completeButton);
@@ -105,9 +110,14 @@ class DoctorDashboard extends JPanel {
     }
 
     public void refreshData() {
+        System.out.println("Refreshing doctor dashboard data...");
+
         // Refresh appointments
         appointmentTableModel.setRowCount(0);
-        for (Appointment a : system.getAllAppointments()) {
+        List<Appointment> currentAppointments = system.getAllAppointments();
+        System.out.println("Found " + currentAppointments.size() + " appointments");
+
+        for (Appointment a : currentAppointments) {
             Patient p = system.getPatientById(a.getPatientId());
             String patientName = p != null ? p.getName() : "Unknown";
             appointmentTableModel.addRow(new Object[]{
@@ -120,8 +130,12 @@ class DoctorDashboard extends JPanel {
             });
         }
 
+        // Refresh medical records
         medicalRecordsTableModel.setRowCount(0);
-        for (Patient patient : system.getAllPatients()) {
+        List<Patient> currentPatients = system.getAllPatients();
+        System.out.println("Processing medical records for " + currentPatients.size() + " patients");
+
+        for (Patient patient : currentPatients) {
             for (MedicalRecord record : patient.getMedicalHistory()) {
                 medicalRecordsTableModel.addRow(new Object[]{
                         record.getRecordId(),
@@ -132,6 +146,14 @@ class DoctorDashboard extends JPanel {
                 });
             }
         }
+
+        // Refresh table displays
+        appointmentTable.revalidate();
+        appointmentTable.repaint();
+        medicalRecordsTable.revalidate();
+        medicalRecordsTable.repaint();
+
+        System.out.println("Doctor dashboard refreshed");
     }
 
     private void markAppointmentCompleted() {

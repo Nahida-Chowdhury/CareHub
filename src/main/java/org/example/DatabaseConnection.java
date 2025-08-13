@@ -17,6 +17,9 @@ public class DatabaseConnection {
 
     private DatabaseConnection() {
         try {
+            System.out.println("🔗 Connecting to MongoDB Atlas...");
+            System.out.println("   Database: " + DATABASE_NAME);
+
             ConnectionString connectionString = new ConnectionString(CONNECTION_STRING);
             MongoClientSettings settings = MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
@@ -25,11 +28,17 @@ public class DatabaseConnection {
             mongoClient = MongoClients.create(settings);
             database = mongoClient.getDatabase(DATABASE_NAME);
 
-            System.out.println("Connected to MongoDB Atlas successfully!");
-            System.out.println("Database: " + DATABASE_NAME);
+            database.runCommand(new org.bson.Document("ping", 1));
+
+            System.out.println("✅ Connected to MongoDB Atlas successfully!");
+            System.out.println("   Database: " + DATABASE_NAME);
         } catch (Exception e) {
-            System.err.println("Failed to connect to MongoDB Atlas: " + e.getMessage());
-            System.err.println("Please check your connection string and network connectivity.");
+            System.err.println("❌ Failed to connect to MongoDB Atlas: " + e.getMessage());
+            System.err.println("   Please check:");
+            System.err.println("   1. Your internet connection");
+            System.err.println("   2. MongoDB Atlas cluster is running");
+            System.err.println("   3. Connection string credentials are correct");
+            System.err.println("   4. Your IP address is whitelisted in MongoDB Atlas");
             e.printStackTrace();
         }
     }
@@ -56,12 +65,14 @@ public class DatabaseConnection {
     public boolean testConnection() {
         try {
             if (database == null) {
+                System.err.println("❌ Database is null - connection not established");
                 return false;
             }
             database.runCommand(new org.bson.Document("ping", 1));
+            System.out.println("✅ Database connection test successful");
             return true;
         } catch (Exception e) {
-            System.err.println("Connection test failed: " + e.getMessage());
+            System.err.println("❌ Connection test failed: " + e.getMessage());
             return false;
         }
     }
