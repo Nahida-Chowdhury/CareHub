@@ -1,0 +1,394 @@
+{
+  "item": [
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/health"
+      },
+      "name": "Health Check"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/patients"
+      },
+      "name": "Get All Patients"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/patients/PAT1"
+      },
+      "name": "Get Patient by ID"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientId\": \"PAT100\",\n  \"name\": \"Test Patient\",\n  \"age\": 30,\n  \"gender\": \"Male\",\n  \"address\": \"123 Test Street\",\n  \"phone\": \"555-0123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/patients"
+      },
+      "name": "Create Patient"
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Patient Name\",\n  \"age\": 31,\n  \"gender\": \"Male\",\n  \"address\": \"456 Updated Street\",\n  \"phone\": \"555-0124\"\n}"
+        },
+        "url": "{{baseUrl}}/api/patients/PAT1"
+      },
+      "name": "Update Patient"
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/patients/PAT1"
+      },
+      "name": "Delete Patient"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/doctors"
+      },
+      "name": "Get All Doctors"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/doctors/DOC1"
+      },
+      "name": "Get Doctor by ID"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"doctorId\": \"DOC100\",\n  \"name\": \"Dr. Test Doctor\",\n  \"specialization\": \"General Medicine\",\n  \"availability\": \"9AM-5PM\"\n}"
+        },
+        "url": "{{baseUrl}}/api/doctors"
+      },
+      "name": "Create Doctor"
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Dr. Updated Doctor\",\n  \"specialization\": \"Internal Medicine\",\n  \"availability\": \"10AM-6PM\"\n}"
+        },
+        "url": "{{baseUrl}}/api/doctors/DOC1"
+      },
+      "name": "Update Doctor"
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/doctors/DOC1"
+      },
+      "name": "Delete Doctor"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/appointments"
+      },
+      "name": "Get All Appointments"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/appointments/APP1"
+      },
+      "name": "Get Appointment by ID"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"appointmentId\": \"APP100\",\n  \"patientId\": \"PAT1\",\n  \"doctorId\": \"DOC1\",\n  \"date\": \"2024-02-15\",\n  \"time\": \"10:00\",\n  \"description\": \"Test appointment\"\n}"
+        },
+        "url": "{{baseUrl}}/api/appointments"
+      },
+      "name": "Create Appointment"
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientId\": \"PAT1\",\n  \"doctorId\": \"DOC1\",\n  \"date\": \"2024-02-16\",\n  \"time\": \"11:00\",\n  \"description\": \"Updated test appointment\"\n}"
+        },
+        "url": "{{baseUrl}}/api/appointments/APP1"
+      },
+      "name": "Update Appointment"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/appointments/APP1/complete"
+      },
+      "name": "Complete Appointment"
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/appointments/APP1"
+      },
+      "name": "Delete Appointment"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/bills"
+      },
+      "name": "Get All Bills"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/bills/BILL1"
+      },
+      "name": "Get Bill by ID"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"billId\": \"BILL100\",\n  \"patientId\": \"PAT1\",\n  \"amount\": 250.00,\n  \"description\": \"Test consultation fee\"\n}"
+        },
+        "url": "{{baseUrl}}/api/bills"
+      },
+      "name": "Create Bill"
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientId\": \"PAT1\",\n  \"amount\": 300.00,\n  \"description\": \"Updated consultation fee\"\n}"
+        },
+        "url": "{{baseUrl}}/api/bills/BILL1"
+      },
+      "name": "Update Bill"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/bills/BILL1/pay"
+      },
+      "name": "Pay Bill"
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/bills/BILL1"
+      },
+      "name": "Delete Bill"
+    },
+    {
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "url": "{{baseUrl}}/api/users"
+      },
+      "name": "Get All Users"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass123\",\n  \"role\": \"DOCTOR\"\n}"
+        },
+        "url": "{{baseUrl}}/api/users"
+      },
+      "name": "Create User"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "value": "application/json",
+            "key": "Content-Type"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "name": "Login"
+    }
+  ],
+  "variable": [
+    {
+      "type": "string",
+      "value": "http://localhost:8080",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "name": "Hospital Management System API",
+    "description": "REST API endpoints for Hospital Management System"
+  }
+}
