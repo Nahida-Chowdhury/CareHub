@@ -83,7 +83,8 @@ class DoctorDashboard extends JPanel {
     private JPanel createMedicalRecordsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        String[] columns = {"Record ID", "Patient", "Date", "Diagnosis", "Treatment"};
+        // Medical Records table
+        String[] columns = {"Record ID", "Patient ID", "Patient", "Date", "Diagnosis", "Treatment"};
         medicalRecordsTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -139,6 +140,7 @@ class DoctorDashboard extends JPanel {
             for (MedicalRecord record : patient.getMedicalHistory()) {
                 medicalRecordsTableModel.addRow(new Object[]{
                         record.getRecordId(),
+                        patient.getPatientId(), // Now showing Patient ID
                         patient.getName(),
                         record.getVisitDate(),
                         record.getDiagnosis(),
