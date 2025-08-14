@@ -1,72 +1,147 @@
-# Hospital Management System - Receptionist Module
+# CareHub: Hospital Management System
 
-## Project Overview
+## 📌 Project Overview
+CareHub is a comprehensive **desktop application** and **REST API backend** designed to streamline daily hospital operations.  
+The desktop app offers an interface for receptionists, doctors, and administrators to manage appointments, billing, and patient/doctor records.  
+The backend provides a robust data layer and RESTful API for programmatic access.
 
-This project is a comprehensive Hospital Management System with a focus on the Receptionist module. It provides an intuitive graphical interface for receptionists to manage patient appointments, billing, and basic patient/doctor information within a hospital setting.
+---
 
-## Key Features
+## 🚀 Key Features
 
 ### Core Functionalities
-- **Appointment Management**: Schedule, view, and update patient appointments
-- **Billing System**: Create and manage patient bills and payment statuses
-- **Patient Records**: View and update basic patient information
-- **Doctor Schedules**: Access doctor availability and specialization information
+- **Role-Based Access Control** – Secure login for Administrators, Doctors, and Receptionists.
+- **Appointment Management** – Schedule, view, and update patient appointments.
+- **Billing System** – Create and manage patient bills and payment statuses.
+- **Patient Records** – View and update patient information.
+- **Doctor Schedules** – Access doctor availability and specialization.
+- **User Management (Admin only)** – Manage all user accounts.
 
 ### Technical Highlights
-- Java Swing-based graphical user interface
-- Model-View-Controller (MVC) architecture
-- Comprehensive data validation
-- Responsive UI design with tabbed navigation
-- Real-time data refresh capabilities
+- Java Swing-based graphical UI.
+- **MVC architecture** for maintainable code.
+- Comprehensive data validation.
+- Responsive UI design with tabbed navigation.
+- Real-time data refresh.
 
-## System Requirements
-- Java JDK 17 or higher
-- Maven for dependency management
-- 1024x768 minimum screen resolution
+---
 
-## Installation
-1. Clone the repository
-2. Build the project using Maven: `mvn clean install`
-3. Run the application: `java -jar target/hospital-management-receptionist.jar`
+## 🖥 Backend & API Details
+- **Backend**: Java  
+- **Database**: MongoDB  
+- **Server**: Runs on `http://localhost:8000` by default  
+- **API Style**: RESTful
 
-## Usage Guide
-1. **Login**: Receptionists must authenticate with valid credentials
-2. **Dashboard**: Central hub with quick access to all features
-3. **Appointments Tab**: 
-   - View upcoming appointments
-   - Schedule new appointments
-   - Mark appointments as completed
-4. **Billing Tab**:
-   - Generate new bills
-   - Track payment statuses
-   - Print billing statements
-5. **Patients Tab**:
-   - Register new patients
-   - Update patient information
-6. **Doctors Tab**:
-   - View doctor schedules
-   - Check specialization information
+### REST API Endpoints
+**Health Check**
+- `GET /health`
 
-## Testing Approach
-The system includes comprehensive unit tests using JUnit 5 and Mockito to ensure reliability. Tests cover:
-- UI component initialization
-- Data validation
-- Business logic
-- Integration between components
+**Patients**
+- `GET /api/patients`
+- `POST /api/patients`
+- `GET /api/patients/{id}`
+- `PUT /api/patients/{id}`
+- `DELETE /api/patients/{id}`
+- `DELETE /api/patients/deleteAll`
 
-## Documentation
-- Javadoc comments throughout the codebase
-- UML diagrams for major components
-- User manual for receptionist staff
+**Doctors**
+- `GET /api/doctors`
+- `POST /api/doctors`
+- `GET /api/doctors/{id}`
+- `PUT /api/doctors/{id}`
+- `DELETE /api/doctors/{id}`
 
-## Future Enhancements
-- Integration with electronic health records
-- Online appointment booking portal
-- Advanced reporting features
-- Mobile-friendly interface
+**Appointments**
+- `GET /api/appointments`
+- `POST /api/appointments`
+- `GET /api/appointments/{id}`
+- `PUT /api/appointments/{id}`
+- `DELETE /api/appointments/{id}`
+- `PUT /api/appointments/{id}/complete`
 
-## License
-This project is licensed under the MIT License. See LICENSE file for details.
+**Bills**
+- `GET /api/bills`
+- `POST /api/bills`
+- `GET /api/bills/{id}`
+- `PUT /api/bills/{id}`
+- `DELETE /api/bills/{id}`
+- `PUT /api/bills/{id}/pay`
 
-## Contact
-For support or contributions, please contact the development team at hospital-management@example.com
+**Users**
+- `GET /api/users`
+- `POST /api/users`
+
+**Authentication**
+- `POST /api/auth/login`
+
+---
+
+## ⚙️ System Requirements
+- Java JDK **21** or higher
+- Maven
+- MongoDB installation or MongoDB Atlas cluster
+- Minimum resolution: **1024x768**
+
+---
+
+## 📥 Installation
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/Nahida-Chowdhury/CareHub.git
+cd CareHub
+```
+
+**2. Configure MongoDB**
+- Create a MongoDB database and collections.
+- Update the database connection URI in the configuration file (`src/main/resources/application.properties` or similar).
+
+**3. Build with Maven**
+```bash
+mvn clean install
+```
+
+---
+
+## ▶️ Usage Guide
+After building:
+```bash
+java -jar target/hospital-management-receptionist.jar
+```
+
+- **Login** with valid credentials.  
+- **Dashboard** – Central hub for quick access to features.  
+- **Appointments Tab** – View, schedule, mark complete.  
+- **Billing Tab** – Generate and track bills.  
+- **Patients/Doctors Tabs** – Register patients, view doctor info.
+
+---
+
+## 🧪 Testing Approach
+- Unit tests with **JUnit 5** & **Mockito**.
+- Covers UI initialization, data validation, business logic, integration.
+
+---
+
+## 📚 Documentation
+- Javadoc comments.
+- UML diagrams for core components.
+- Staff user manual.
+
+---
+
+## 🔮 Future Enhancements
+- Integration with EHR systems.
+- Online appointment booking.
+- Advanced reporting.
+- Mobile-friendly interface.
+
+---
+
+## 📜 License
+Licensed under the **MIT License** – See `LICENSE` for details.
+
+---
+
+## 📩 Contact
+For support or contributions: **hospital-management@example.com**
