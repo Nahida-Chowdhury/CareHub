@@ -29,7 +29,7 @@ The backend provides a robust data layer and RESTful API for programmatic access
 ## 🖥 Backend & API Details
 - **Backend**: Java  
 - **Database**: MongoDB  
-- **Server**: Runs on `http://localhost:8000` by default  
+- **Server**: Runs on `http://localhost:8080` by default  
 - **API Style**: RESTful
 
 ### REST API Endpoints
