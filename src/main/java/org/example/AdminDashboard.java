@@ -400,7 +400,7 @@ class AdminDashboard extends JPanel {
             JPanel buttonPanel = new JPanel();
             JButton addButton = new JButton("New Bill");
             JButton payButton = new JButton("Mark Paid");
-            JButton deleteButton = new JButton("Delete");
+            //JButton deleteButton = new JButton("Delete");
             JButton refreshButton = new JButton("Refresh");
             // Styled Logout Button
             JButton logoutButton = ButtonStyle.createRedButton("Logout");
@@ -408,7 +408,7 @@ class AdminDashboard extends JPanel {
 
             addButton.addActionListener(e -> showBillDialog());
             payButton.addActionListener(e -> markBillPaid());
-            deleteButton.addActionListener(e -> deleteBill());
+            //deleteButton.addActionListener(e -> deleteBill());
             refreshButton.addActionListener(e -> {
                 System.out.println("Billing Refresh button clicked - refreshing billing data...");
                 system.refreshAllData(); // Refresh from database first
@@ -417,7 +417,7 @@ class AdminDashboard extends JPanel {
 
             buttonPanel.add(addButton);
             buttonPanel.add(payButton);
-            buttonPanel.add(deleteButton);
+            //buttonPanel.add(deleteButton);
             buttonPanel.add(refreshButton);
             buttonPanel.add(logoutButton);
             add(buttonPanel, BorderLayout.SOUTH);
