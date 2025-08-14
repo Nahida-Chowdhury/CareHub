@@ -15,11 +15,12 @@ class ReceptionistDashboard extends JPanel {
 
         // Title
         JLabel titleLabel = new JLabel("Receptionist Dashboard", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(titleLabel, BorderLayout.PAGE_START);
 
         // Tabbed interface
         tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Set font for tabs
         tabbedPane.addTab("Appointments", new AppointmentManagementPanel());
         tabbedPane.addTab("Billing", new BillingManagementPanel());
         add(tabbedPane, BorderLayout.CENTER);
@@ -50,7 +51,7 @@ class ReceptionistDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            appointmentTable = new JTable(tableModel);
+            appointmentTable = system.new StyledTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(appointmentTable);
             add(scrollPane, BorderLayout.CENTER);
 
@@ -337,7 +338,7 @@ class ReceptionistDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            billTable = new JTable(tableModel);
+            billTable = system.new StyledTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(billTable);
             add(scrollPane, BorderLayout.CENTER);
 

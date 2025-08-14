@@ -21,9 +21,9 @@ public class HospitalManagementSystem extends JFrame {
     private List<Bill> bills = new ArrayList<>();
 
     // Colors
-    private final Color PRIMARY_COLOR = new Color(0, 123, 255);
-    private final Color SECONDARY_COLOR = new Color(108, 117, 125);
-    private final Color DARK_BG = new Color(33, 37, 41);
+    public final Color PRIMARY_COLOR = new Color(0, 123, 255);
+    public final Color SECONDARY_COLOR = new Color(108, 117, 125);
+    public final Color DARK_BG = new Color(33, 37, 41);
 
     // GUI Components
     private CardLayout cardLayout = new CardLayout();
@@ -494,7 +494,7 @@ public class HospitalManagementSystem extends JFrame {
             getTableHeader().setBackground(DARK_BG);
             getTableHeader().setForeground(Color.WHITE);
             setSelectionBackground(PRIMARY_COLOR);
-            setSelectionForeground(Color.WHITE);
+            getTableHeader().setOpaque(false); // Ensure the background is drawn
             setFillsViewportHeight(true);
         }
     }

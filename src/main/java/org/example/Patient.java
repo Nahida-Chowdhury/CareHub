@@ -100,4 +100,8 @@ class Patient implements Serializable {
         if (medicalHistory.isEmpty()) return "No diagnosis recorded";
         return medicalHistory.get(medicalHistory.size() - 1).getDiagnosis();
     }
+    @Override
+    public String toString() {
+        return this.name + " (" + this.patientId + ")";
+    }
 }
