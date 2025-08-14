@@ -21,11 +21,11 @@ class DoctorDashboard extends JPanel {
 
         // Title
         JLabel titleLabel = new JLabel("Doctor Dashboard", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         add(titleLabel, BorderLayout.PAGE_START);
 
         tabbedPane = new JTabbedPane();
-
+        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Set font for tabs
         // Appointments tab
         JPanel appointmentsPanel = createAppointmentsPanel();
         tabbedPane.addTab("Appointments", appointmentsPanel);
@@ -54,7 +54,7 @@ class DoctorDashboard extends JPanel {
         appointmentTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
-        appointmentTable = new JTable(appointmentTableModel);
+        appointmentTable = system.new StyledTable(appointmentTableModel);
         JScrollPane scrollPane = new JScrollPane(appointmentTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -87,7 +87,7 @@ class DoctorDashboard extends JPanel {
         medicalRecordsTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
-        medicalRecordsTable = new JTable(medicalRecordsTableModel);
+        medicalRecordsTable = system.new StyledTable(medicalRecordsTableModel);
         JScrollPane scrollPane = new JScrollPane(medicalRecordsTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 

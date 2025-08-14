@@ -17,11 +17,12 @@ class AdminDashboard extends JPanel {
 
         // Title
         JLabel titleLabel = new JLabel("Administrator Dashboard", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         add(titleLabel, BorderLayout.PAGE_START);
 
         // Tabbed interface
         tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Set font for tabs
         tabbedPane.addTab("Patients", new PatientManagementPanel());
         tabbedPane.addTab("Doctors", new DoctorManagementPanel());
         tabbedPane.addTab("Billing", new BillingManagementPanel());
@@ -55,7 +56,7 @@ class AdminDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            patientTable = new JTable(tableModel);
+            patientTable = system.new StyledTable(tableModel); // Use StyledTable
             JScrollPane scrollPane = new JScrollPane(patientTable);
             add(scrollPane, BorderLayout.CENTER);
 
@@ -230,7 +231,7 @@ class AdminDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            doctorTable = new JTable(tableModel);
+            doctorTable = system.new StyledTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(doctorTable);
             add(scrollPane, BorderLayout.CENTER);
 
@@ -391,7 +392,7 @@ class AdminDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            billTable = new JTable(tableModel);
+            billTable = system.new StyledTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(billTable);
             add(scrollPane, BorderLayout.CENTER);
 
@@ -555,7 +556,7 @@ class AdminDashboard extends JPanel {
             tableModel = new DefaultTableModel(columns, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            userTable = new JTable(tableModel);
+            userTable = system.new StyledTable(tableModel);
             add(new JScrollPane(userTable), BorderLayout.CENTER);
 
             // Button panel
